@@ -21,12 +21,6 @@ C:\NTT\AirlineTicketingDemo\ReservationService\obj\Debug\net8.0\scopedcss\bundle
 C:\NTT\AirlineTicketingDemo\ReservationService\obj\Debug\net8.0\staticwebassets.build.json
 C:\NTT\AirlineTicketingDemo\ReservationService\obj\Debug\net8.0\staticwebassets.development.json
 C:\NTT\AirlineTicketingDemo\ReservationService\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-C:\NTT\AirlineTicketingDemo\ReservationService\obj\Debug\net8.0\staticwebassets\msbuild.ReservationService.Microsoft.AspNetCore.StaticWebAssets.props
-C:\NTT\AirlineTicketingDemo\ReservationService\obj\Debug\net8.0\staticwebassets\msbuild.ReservationService.Microsoft.AspNetCore.StaticWebAssetEndpoints.props
-C:\NTT\AirlineTicketingDemo\ReservationService\obj\Debug\net8.0\staticwebassets\msbuild.build.ReservationService.props
-C:\NTT\AirlineTicketingDemo\ReservationService\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.ReservationService.props
-C:\NTT\AirlineTicketingDemo\ReservationService\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.ReservationService.props
-C:\NTT\AirlineTicketingDemo\ReservationService\obj\Debug\net8.0\staticwebassets.pack.json
 C:\NTT\AirlineTicketingDemo\ReservationService\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 C:\NTT\AirlineTicketingDemo\ReservationService\obj\Debug\net8.0\Reservat.9A8E0B66.Up2Date
 C:\NTT\AirlineTicketingDemo\ReservationService\obj\Debug\net8.0\ReservationService.dll
@@ -109,3 +103,9 @@ C:\NTT\AirlineTicketingDemo\ReservationService\bin\Debug\net8.0\tr\FSharp.Core.r
 C:\NTT\AirlineTicketingDemo\ReservationService\bin\Debug\net8.0\zh-Hans\FSharp.Core.resources.dll
 C:\NTT\AirlineTicketingDemo\ReservationService\bin\Debug\net8.0\zh-Hant\FSharp.Core.resources.dll
 C:\NTT\AirlineTicketingDemo\ReservationService\bin\Debug\net8.0\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
+C:\NTT\AirlineTicketingDemo\ReservationService\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\NTT\AirlineTicketingDemo\ReservationService\obj\Debug\net8.0\ReservationService.sourcelink.json
+C:\NTT\AirlineTicketingDemo\ReservationService\obj\Debug\net8.0\rjimswa.dswa.cache.json
+C:\NTT\AirlineTicketingDemo\ReservationService\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
+C:\NTT\AirlineTicketingDemo\ReservationService\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
+C:\NTT\AirlineTicketingDemo\ReservationService\obj\Debug\net8.0\staticwebassets.build.json.cache

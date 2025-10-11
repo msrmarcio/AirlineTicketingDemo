@@ -1,0 +1,2 @@
+﻿dotnet ef migrations add InitialCreate --project ReservationService.Infrastructure --startup-project ReservationService
+dotnet ef database update --project ReservationService.Infrastructure --startup-project ReservationService

@@ -31,8 +31,9 @@ namespace ReservationService.Controllers
                 return BadRequest(new { message = "CustomerName is required" });
 
             try
-            { 
-                var reservationId = await _reservationService.CreateReservationAsync(request.CustomerName);
+            {
+                var reservationId = await _reservationService.CreateReservationAsync(
+                    request.CustomerName, request.CustomerEmail);
 
                 _logger.LogInformation(
                     "Reservation created: {ReservationId} for {CustomerName}", reservationId, request.CustomerName);

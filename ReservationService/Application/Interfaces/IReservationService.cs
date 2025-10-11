@@ -2,6 +2,6 @@
 {
     public interface IReservationService
     {
-        Task<Guid> CreateReservationAsync(string customerName);
+        Task<Guid> CreateReservationAsync(string customerName, string customerEmail);
     }
 }

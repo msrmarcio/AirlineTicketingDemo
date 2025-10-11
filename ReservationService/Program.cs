@@ -1,25 +1,51 @@
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using ReservationService.Application.Interfaces;
+using ReservationService.Infrastructure.Configurations;
+using ReservationService.Infrastructure.Persistence;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// -------------------------------------
+// ====================================================================
 // Add services to the container.
-// -------------------------------------
+// ====================================================================
+// ---------------------------------------------------------------------------------
+// Mapear a seção "RabbitMq" do appsettings para a classe RabbitMqOptions
+// ---------------------------------------------------------------------------------
+builder.Services.Configure<RabbitMqOptions>(
+    builder.Configuration.GetSection(RabbitMqOptions.RabbitMq));
+
+// ---------------------------------------------------------------------------------
 // configuracao massTransit e serilog
+// ---------------------------------------------------------------------------------
 builder.Services.AddMassTransit(x =>
 {
-    x.UsingInMemory((context, cfg) =>
+    x.AddConsumers(typeof(Program).Assembly); // registra todos os consumers do projeto
+
+    x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.ConfigureEndpoints(context);
+        // 1. OBTÉM as opções de configuração do provedor de serviços (DI)
+        var rabbitMqOptions = context.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
+
+        // 2. CONFIGURA o Host usando os valores obtidos do appsettings.json
+        cfg.Host(rabbitMqOptions.Host, rabbitMqOptions.VirtualHost, h =>
+        {
+            h.Username(rabbitMqOptions.Username);
+            h.Password(rabbitMqOptions.Password);
+        });
+
+        cfg.ConfigureEndpoints(context); // cria automaticamente os endpoints para os consumers
     });
 });
+
 
 builder.Host.UseSerilog((ctx, lc) => lc
     .WriteTo.Console()
     .WriteTo.File("logs/Reservationlog.txt", rollingInterval: RollingInterval.Day));
-
+builder.Services.AddDbContext<ReservationDbContext>(
+    options => options.UseSqlServer(builder.Configuration.GetConnectionString("ReservationConnectionString")));
 builder.Services.AddScoped<IReservationService, ReservationService.Application.Services.ReservationService>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
