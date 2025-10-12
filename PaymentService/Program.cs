@@ -1,26 +1,64 @@
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using PaymentService.Application.Interfaces;
+using PaymentService.Consumers;
+using PaymentService.Infrastructure.Configurations;
+using PaymentService.Infrastructure.Persistence;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ----------------------------------------------
+// ====================================================================
 // Add services to the container.
-// ----------------------------------------------
-// configuracao massTransit e serilog
+// ====================================================================
+// ====================================================================
+// CONFIGURAÇÕES DE APPSETTINGS
+// ====================================================================
+builder.Services.Configure<RabbitMqOptions>(
+    builder.Configuration.GetSection(RabbitMqOptions.RabbitMq));
+
+// ====================================================================
+// CONFIGURAÇÕES DE MASS TRANSIT
+// ====================================================================
 builder.Services.AddMassTransit(x =>
 {
-    x.UsingInMemory((context, cfg) =>
+    x.AddConsumer<PaymentTimeoutConsumer>();
+
+    x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.ConfigureEndpoints(context);
+        // 1. OBTÉM as opções de configuração do provedor de serviços (DI)
+        var rabbitMqOptions = context.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
+
+        // 2. CONFIGURA o Host usando os valores obtidos do appsettings.json
+        cfg.Host(rabbitMqOptions.Host, rabbitMqOptions.VirtualHost, h =>
+        {
+            h.Username(rabbitMqOptions.Username);
+            h.Password(rabbitMqOptions.Password);
+        });
+
+        cfg.ConfigureEndpoints(context); // cria automaticamente os endpoints para os consumers
     });
 });
 
+// ====================================================================
+// CONFIGURAÇÕES DE LOG
+// ====================================================================
 builder.Host.UseSerilog((ctx, lc) => lc
     .WriteTo.Console()
     .WriteTo.File("logs/Paymentlog.txt", rollingInterval: RollingInterval.Day));
 
-builder.Services.AddScoped<IPaymentService, PaymentService.Application.Services.PaymentService>(); 
+// ====================================================================
+// CONFIGURAÇÕES DE BANCO DE DADOS
+// ====================================================================
+builder.Services.AddDbContext<PaymentDbContext>(
+    options => options.UseSqlServer(builder.Configuration.GetConnectionString("PaymentConnectionString")));
+
+// ====================================================================
+// INJEÇÃO DE DEPENDÊNCIAS
+// ====================================================================
+builder.Services.AddScoped<IPaymentService, PaymentService.Application.Services.PaymentService>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

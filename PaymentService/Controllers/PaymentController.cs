@@ -1,14 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using MassTransit.Testing.Implementations;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using PaymentService.Application.Interfaces;
 using PaymentService.Application.DTOs;
-using MassTransit.Testing.Implementations;
+using PaymentService.Application.Interfaces;
+using PaymentService.Domain.Entities;
 
 namespace PaymentService.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class PaymentController : Controller
+    public class PaymentController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
         private readonly ILogger<PaymentController> _logger;
@@ -22,37 +23,70 @@ namespace PaymentService.Controllers
         [HttpPost]
         public async Task<IActionResult> ProcessPayment([FromBody] ProcessPaymentRequestDto request)
         {
-            if (request.ReservationId == Guid.Empty || request.Amount <= 0)
+            if (request.ReservationId == Guid.Empty || request.Amount <= 0 || string.IsNullOrWhiteSpace(request.CustomerEmail))
+            {
+                _logger.LogWarning("Invalid payment request: {@Request}", request);
                 return BadRequest(new { message = "Invalid data" });
+            }
 
             try
             {
-                var success = await _paymentService.ProcessPaymentAsync(request.ReservationId, request.Amount);
+                Payment payment = await _paymentService.ProcessPaymentAsync(
+                    request.ReservationId,
+                    request.Amount,
+                    request.CustomerEmail);
 
-                if (success)
+                if (payment.Status == "Approved")
                 {
-                    return Ok(new { message = "Payment processed successfully (event published)" });
+                    return Ok(new
+                    {
+                        message = "Payment processed successfully",
+                        paymentId = payment.Id,
+                        status = payment.Status,
+                        processedAt = payment.ProcessedAt
+                    });
                 }
                 else
                 {
-                    /* Simulação: mesmo que o pagamento falhe, retornamos 402 (Payment Required)
-                     * para indicar que o pagamento não foi concluído.
-                     * Em um cenário real, você poderia retornar diferentes códigos de status
-                     * dependendo do motivo da falha (ex: 402, 403, 500, etc).
-                     * Obs.: O código de status HTTP 402 Payment Required é um termo despadronizado para respostas de Status, 
-                     * podendo-se ter usos futuros. 
-                     * RFC 7231, sessão 6.5.2: 402 Payment Required
-                     */
-                    return StatusCode(StatusCodes.Status402PaymentRequired, new { message = "Payment failed (event published)" });
+                    return StatusCode(StatusCodes.Status402PaymentRequired, new
+                    {
+                        message = "Payment failed",
+                        paymentId = payment.Id,
+                        status = payment.Status,
+                        processedAt = payment.ProcessedAt
+                    });
                 }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing payment for ReservationId: {ReservationId}", request.ReservationId);
-                return StatusCode(
-                    StatusCodes.Status500InternalServerError,
-                    new { message = "Internal error in process payment" });
+                return StatusCode(StatusCodes.Status500InternalServerError, new
+                {
+                    message = "Internal error while processing payment"
+                });
             }
         }
+
+        [HttpGet("{reservationId}")]
+        public async Task<IActionResult> GetPaymentByReservationId(Guid reservationId)
+        {
+            if (reservationId == Guid.Empty)
+                return BadRequest(new { message = "Invalid reservation ID" });
+
+            var payment = await _paymentService.GetPaymentByReservationIdAsync(reservationId);
+
+            if (payment == null)
+                return NotFound(new { message = "Payment not found for this reservation" });
+
+            return Ok(new
+            {
+                paymentId = payment.Id,
+                reservationId = payment.ReservationId,
+                amount = payment.Amount,
+                status = payment.Status,
+                processedAt = payment.ProcessedAt
+            });
+        }
+
     }
 }

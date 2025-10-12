@@ -1,7 +1,11 @@
-﻿namespace PaymentService.Application.Interfaces
+﻿using PaymentService.Domain.Entities;
+
+namespace PaymentService.Application.Interfaces
 {
     public interface IPaymentService
     {
-        Task<bool> ProcessPaymentAsync(Guid reservationId, decimal amount);
+        Task<Payment> ProcessPaymentAsync(Guid reservationId, decimal amount, string customerEmail);
+        Task<Payment?> GetPaymentByReservationIdAsync(Guid reservationId);
+
     }
 }
