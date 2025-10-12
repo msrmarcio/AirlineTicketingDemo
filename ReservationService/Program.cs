@@ -44,8 +44,10 @@ builder.Services.AddMassTransit(x =>
 builder.Host.UseSerilog((ctx, lc) => lc
     .WriteTo.Console()
     .WriteTo.File("logs/Reservationlog.txt", rollingInterval: RollingInterval.Day));
+
 builder.Services.AddDbContext<ReservationDbContext>(
     options => options.UseSqlServer(builder.Configuration.GetConnectionString("ReservationConnectionString")));
+
 builder.Services.AddScoped<IReservationService, ReservationService.Application.Services.ReservationService>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
