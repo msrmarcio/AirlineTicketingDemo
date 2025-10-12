@@ -16,7 +16,8 @@ namespace ReservationService.Infrastructure.Persistence
         /// <summary>
         /// representa a tabela Reservations
         /// </summary>
-        public DbSet<Reservation> Reservations { get; set; }
+        public DbSet<Reservation> Reservations => Set<Reservation>();
+
 
         /// <summary>
         /// define regras de mapeamento (chave primária, campos obrigatórios, tamanhos)
