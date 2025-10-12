@@ -1,5 +1,5 @@
-﻿dotnet ef migrations add InitialCreate --project PaymentService.Infrastructure --startup-project PaymentService
-dotnet ef database update --project PaymentService.Infrastructure --startup-project PaymentService
+﻿dotnet ef migrations add InitialCreate --project PaymentService --startup-project PaymentService
+dotnet ef database update --project PaymentService --startup-project PaymentService
 
 
 # executar na raiz do projeto (solution)
