@@ -48,6 +48,7 @@ builder.Host.UseSerilog((ctx, lc) => lc
 builder.Services.AddDbContext<ReservationDbContext>(
     options => options.UseSqlServer(builder.Configuration.GetConnectionString("ReservationConnectionString")));
 
+builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
 builder.Services.AddScoped<IReservationService, ReservationService.Application.Services.ReservationService>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
