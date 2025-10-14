@@ -20,8 +20,10 @@ namespace PaymentService.Application.Services
             _logger = logger;
         }
 
-        public async Task<Payment> ProcessPaymentAsync(Guid reservationId, decimal amount, string customerEmail)
+        public async Task<Payment> ProcessPaymentAsync(Guid reservationId, string customerEmail, decimal amount)
         {
+            /* Simula processamento de pagamento com 80% de chance de sucesso | Probabilidade: 8/10 = 80%*/
+
             var success = new Random().Next(0, 10) <= 7;
 
             var payment = new Payment
@@ -59,6 +61,6 @@ namespace PaymentService.Application.Services
         {
             return await _paymentRepository.GetByReservationIdAsync(reservationId);
         }
-
+         
     }
 }

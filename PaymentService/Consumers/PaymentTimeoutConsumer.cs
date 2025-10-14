@@ -7,21 +7,22 @@ namespace PaymentService.Consumers
     public class PaymentTimeoutConsumer : IConsumer<PaymentTimeout>
     {
         private readonly IPaymentService _paymentService;
+        private readonly ILogger<PaymentTimeoutConsumer> _logger;
 
-        public PaymentTimeoutConsumer(IPaymentService paymentService)
+        public PaymentTimeoutConsumer(IPaymentService paymentService, ILogger<PaymentTimeoutConsumer> logger)
         {
             _paymentService = paymentService;
+            _logger = logger;
         }
 
         public async Task Consume(ConsumeContext<PaymentTimeout> context)
         {
-            var message = context.Message;
+            var msg = context.Message;
 
-            await _paymentService.ProcessPaymentAsync(
-                message.ReservationId,
-                message.Amount,
-                message.CustomerEmail);
+            _logger.LogInformation("Timeout recebido: ReservationId={ReservationId}, Email={Email}, Amount={Amount}",
+                msg.ReservationId, msg.CustomerEmail, msg.Amount);
+
+            await _paymentService.ProcessPaymentAsync(msg.ReservationId, msg.CustomerEmail, msg.Amount);
         }
     }
-
 }
