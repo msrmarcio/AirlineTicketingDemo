@@ -28,9 +28,6 @@
 
   <ItemGroup>
     <Folder Include="Application\DTOs\" />
-    <Folder Include="Application\Services\" />
-    <Folder Include="Consumers\" />
-    <Folder Include="Messages\" />
   </ItemGroup>
 
 </Project>
