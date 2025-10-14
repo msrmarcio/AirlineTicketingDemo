@@ -1,0 +1,3 @@
+﻿
+
+# executar na raiz do projeto (solution)

@@ -1,0 +1,6 @@
+﻿dotnet ef migrations add InitialCreate --project NotificationService --startup-project NotificationService
+dotnet ef database update --project NotificationService --startup-project NotificationService
+
+
+
+# executar na raiz do projeto (solution)
