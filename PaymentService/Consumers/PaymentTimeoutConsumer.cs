@@ -1,10 +1,11 @@
-﻿using MassTransit;
+﻿using Contracts;
+using MassTransit;
 using PaymentService.Application.Interfaces;
 using PaymentService.Messages;
 
 namespace PaymentService.Consumers
 {
-    public class PaymentTimeoutConsumer : IConsumer<PaymentTimeout>
+    public class PaymentTimeoutConsumer : IConsumer<IPaymentTimeout>
     {
         private readonly IPaymentService _paymentService;
         private readonly ILogger<PaymentTimeoutConsumer> _logger;
@@ -15,7 +16,7 @@ namespace PaymentService.Consumers
             _logger = logger;
         }
 
-        public async Task Consume(ConsumeContext<PaymentTimeout> context)
+        public async Task Consume(ConsumeContext<IPaymentTimeout> context)
         {
             var msg = context.Message;
 

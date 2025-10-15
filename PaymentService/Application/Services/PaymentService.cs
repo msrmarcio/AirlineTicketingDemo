@@ -1,9 +1,10 @@
-﻿using PaymentService.Application.Interfaces;
-using PaymentService.Domain.Entities;
-using PaymentService.Messages;
-using PaymentService.Infrastructure.Persistence;
+﻿using Contracts;
 using MassTransit;
 using Microsoft.Extensions.Logging;
+using PaymentService.Application.Interfaces;
+using PaymentService.Domain.Entities;
+using PaymentService.Infrastructure.Persistence;
+using PaymentService.Messages;
 
 namespace PaymentService.Application.Services
 {
@@ -24,7 +25,7 @@ namespace PaymentService.Application.Services
         {
             /* Simula processamento de pagamento com 80% de chance de sucesso | Probabilidade: 8/10 = 80%*/
 
-            var success = new Random().Next(0, 10) <= 7;
+            var success = new Random().Next(0, 10) <= 4;
 
             var payment = new Payment
             {
@@ -39,7 +40,7 @@ namespace PaymentService.Application.Services
 
             if (success)
             {
-                await _publishEndpoint.Publish(new PaymentApproved(
+                await _publishEndpoint.Publish<IPaymentApproved>(new PaymentApproved(
                     reservationId,
                     customerEmail,
                     amount,
@@ -47,11 +48,11 @@ namespace PaymentService.Application.Services
             }
             else
             {
-                await _publishEndpoint.Publish(new PaymentRejected(
+                await _publishEndpoint.Publish<IPaymentRejected>(new PaymentRejected(
                     reservationId,
                     customerEmail,
-                    amount,
-                    payment.ProcessedAt));
+                     amount,
+                     payment.ProcessedAt));
             }
 
             return payment;
@@ -61,6 +62,6 @@ namespace PaymentService.Application.Services
         {
             return await _paymentRepository.GetByReservationIdAsync(reservationId);
         }
-         
+
     }
 }

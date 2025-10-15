@@ -1,0 +1,5 @@
+﻿dotnet ef migrations add InitialCreate --project CustomerHistoryService --startup-project CustomerHistoryService
+dotnet ef database update --project CustomerHistoryService --startup-project CustomerHistoryService
+
+
+# executar na raiz do projeto (solution)

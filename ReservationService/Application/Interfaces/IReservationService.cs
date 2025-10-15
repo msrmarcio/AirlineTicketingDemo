@@ -1,7 +1,9 @@
-﻿namespace ReservationService.Application.Interfaces
+﻿using ReservationService.Domain.Entities;
+
+namespace ReservationService.Application.Interfaces
 {
     public interface IReservationService
     {
-        Task<Guid> CreateReservationAsync(string customerName, string customerEmail);
+        Task<Reservation> CreateReservationAsync(string customerName, string customerEmail, decimal amount);
     }
 }

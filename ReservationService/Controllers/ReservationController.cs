@@ -19,39 +19,41 @@ namespace ReservationService.Controllers
             _logger = logger;
         }
 
-
-        // POST: ReservationController/Create
         [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)] 
         public async Task<IActionResult> CreateReservation([FromBody] CreateReservationRequestDto request)
         {
-            if (string.IsNullOrWhiteSpace(request.CustomerName))
-                return BadRequest(new { message = "CustomerName is required" });
+            if (string.IsNullOrWhiteSpace(request.CustomerName) ||
+                string.IsNullOrWhiteSpace(request.CustomerEmail) ||
+                request.Amount <= 0)
+            {
+                _logger.LogWarning("Dados inválidos recebidos na criação de reserva");
+                return BadRequest("Nome, e-mail e valor devem ser preenchidos corretamente.");
+            }
 
             try
             {
-                var reservationId = await _reservationService.CreateReservationAsync(
-                    request.CustomerName, request.CustomerEmail);
+                var reservation = await _reservationService.CreateReservationAsync(
+                    request.CustomerName,
+                    request.CustomerEmail,
+                    request.Amount);
 
-                _logger.LogInformation(
-                    "Reservation created: {ReservationId} for {CustomerName}", reservationId, request.CustomerName);
+                _logger.LogInformation("Reserva criada com sucesso: {ReservationId}", reservation.Id);
 
-                return StatusCode(StatusCodes.Status201Created, new
+                return Ok(new
                 {
-                    reservationId,
-                    message = "Reservation created successfully (event published)"
+                    reservation.Id,
+                    reservation.CustomerName,
+                    reservation.CustomerEmail,
+                    reservation.Amount,
+                    reservation.Status,
+                    reservation.CreatedAt
                 });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating reservation");
-
-                return StatusCode(
-                    StatusCodes.Status500InternalServerError, 
-                    new { message = "Internal error in process reservation" });
-            } 
+                _logger.LogError(ex, "❌ Erro ao criar reserva");
+                return StatusCode(500, "Erro interno ao processar a reserva.");
+            }
         }
     }
 

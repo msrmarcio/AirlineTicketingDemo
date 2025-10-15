@@ -1,4 +1,5 @@
-﻿using MassTransit;
+﻿using Contracts;
+using MassTransit;
 using NATS.Client.Service;
 using NotificationService.Application.Interfaces;
 using NotificationService.Messages;
@@ -10,7 +11,7 @@ namespace NotificationService.Consumers
     /// Escuta eventos do RabbitMQ.
     /// Chama o serviço de notificação com a mensagem apropriada.
     /// </summary>
-    public class PaymentRejectedConsumer : IConsumer<PaymentRejected>
+    public class PaymentRejectedConsumer : IConsumer<IPaymentRejected>
     {
         private readonly INotificationService _notificationService;
 
@@ -19,7 +20,7 @@ namespace NotificationService.Consumers
             _notificationService = notificationService;
         }
 
-        public async Task Consume(ConsumeContext<PaymentRejected> context)
+        public async Task Consume(ConsumeContext<IPaymentRejected> context)
         {
             var msg = context.Message;
             await _notificationService.SendNotificationAsync(
@@ -27,7 +28,7 @@ namespace NotificationService.Consumers
                 msg.CustomerEmail,
                 "PaymentRejected",
                 "Sent",
-                $"Pagamento rejeitado no valor de R$ {msg.Amount:F2} em {msg.Timestamp:dd/MM/yyyy HH:mm}");
+                 $"Pagamento negado no valor de R$ {msg.Amount:F2} em {msg.ProcessedAt:dd/MM/yyyy HH:mm}");
 
         }
     }

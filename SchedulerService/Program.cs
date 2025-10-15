@@ -43,9 +43,10 @@ builder.Services.AddMassTransit(x =>
             h.Password(rabbitMqOptions.Password);
         });
 
-        cfg.ReceiveEndpoint("reservation-created-queue", e =>
+        cfg.ReceiveEndpoint("reservation-created-scheduler-queue", e =>
         {
             e.ConfigureConsumer<ReservationCreatedConsumer>(context);
+            e.SetQueueArgument("durable", true);
         });
     });
 });
@@ -68,20 +69,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-// configuracao massTransit e serilog
-builder.Services.AddMassTransit(x =>
-{
-    x.UsingInMemory((context, cfg) =>
-    {
-        cfg.ConfigureEndpoints(context);
-    });
-});
-
-builder.Host.UseSerilog((ctx, lc) => lc
-    .WriteTo.Console()
-    .WriteTo.File("logs/Schedulerlog.txt", rollingInterval: RollingInterval.Day));
-
+ 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

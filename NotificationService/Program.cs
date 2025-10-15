@@ -46,12 +46,12 @@ builder.Services.AddMassTransit(x =>
         });
 
         // Cria endpoints nomeados para cada tipo de evento
-        cfg.ReceiveEndpoint("payment-approved-queue", e =>
+        cfg.ReceiveEndpoint("payment-approved-notification-queue", e =>
         {
             e.ConfigureConsumer<PaymentApprovedConsumer>(context);
         });
 
-        cfg.ReceiveEndpoint("payment-rejected-queue", e =>
+        cfg.ReceiveEndpoint("payment-rejected-notification-queue", e =>
         {
             e.ConfigureConsumer<PaymentRejectedConsumer>(context);
         });

@@ -17,29 +17,22 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.Configure<RabbitMqOptions>(
     builder.Configuration.GetSection(RabbitMqOptions.RabbitMq));
 
-// ---------------------------------------------------------------------------------
-// configuracao massTransit e serilog
-// ---------------------------------------------------------------------------------
+// ====================================================================
+// CONFIGURAÇÃO DO MASS TRANSIT PARA PUBLICAÇÃO
+// ====================================================================
 builder.Services.AddMassTransit(x =>
 {
-    x.AddConsumers(typeof(Program).Assembly); // registra todos os consumers do projeto
-
     x.UsingRabbitMq((context, cfg) =>
     {
-        // 1. OBTÉM as opções de configuração do provedor de serviços (DI)
         var rabbitMqOptions = context.GetRequiredService<IOptions<RabbitMqOptions>>().Value;
 
-        // 2. CONFIGURA o Host usando os valores obtidos do appsettings.json
         cfg.Host(rabbitMqOptions.Host, rabbitMqOptions.VirtualHost, h =>
         {
             h.Username(rabbitMqOptions.Username);
             h.Password(rabbitMqOptions.Password);
         });
-
-        cfg.ConfigureEndpoints(context); // cria automaticamente os endpoints para os consumers
     });
 });
-
 
 builder.Host.UseSerilog((ctx, lc) => lc
     .WriteTo.Console()

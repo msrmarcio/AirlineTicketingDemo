@@ -1,6 +1,6 @@
-﻿using MassTransit;
+﻿using Contracts;
+using MassTransit;
 using NotificationService.Application.Interfaces;
-using NotificationService.Messages;
 
 namespace NotificationService.Consumers
 {
@@ -8,7 +8,7 @@ namespace NotificationService.Consumers
     /// Escuta eventos do RabbitMQ.
     /// Chama o serviço de notificação com a mensagem apropriada.
     /// </summary>
-    public class PaymentApprovedConsumer : IConsumer<PaymentApproved>
+    public class PaymentApprovedConsumer : IConsumer<IPaymentApproved>
     {
         private readonly INotificationService _notificationService;
 
@@ -17,16 +17,20 @@ namespace NotificationService.Consumers
             _notificationService = notificationService;
         }
 
-        public async Task Consume(ConsumeContext<PaymentApproved> context)
+        public async Task Consume(ConsumeContext<IPaymentApproved> context)
         {
             var msg = context.Message;
+
+            // Persiste a notificação no banco via serviço
             await _notificationService.SendNotificationAsync(
                 msg.ReservationId,
                 msg.CustomerEmail,
                 "PaymentApproved",
                 "Sent",
-                $"Pagamento aprovado no valor de R$ {msg.Amount:F2} em {msg.Timestamp:dd/MM/yyyy HH:mm}");
+                $"Pagamento aprovado no valor de R$ {msg.Amount:F2} em {msg.ProcessedAt:dd/MM/yyyy HH:mm}");
 
+            // Aqui você pode acionar o envio de e-mail, SMS ou push notification
+            // Exemplo: await _emailSender.SendAsync(msg.CustomerEmail, "Pagamento aprovado", corpoDoEmail);
         }
     }
 }

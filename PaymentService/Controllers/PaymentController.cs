@@ -33,8 +33,8 @@ namespace PaymentService.Controllers
             {
                 Payment payment = await _paymentService.ProcessPaymentAsync(
                     request.ReservationId,
-                    request.Amount,
-                    request.CustomerEmail);
+                    request.CustomerEmail,
+                    request.Amount);
 
                 if (payment.Status == "Approved")
                 {

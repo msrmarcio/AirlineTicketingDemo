@@ -1,0 +1,6 @@
+@CustomerHistoryService_HostAddress = http://localhost:5085
+
+GET {{CustomerHistoryService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

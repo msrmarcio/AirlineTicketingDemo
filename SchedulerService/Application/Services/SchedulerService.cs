@@ -1,7 +1,7 @@
-﻿using MassTransit;
+﻿using Contracts;
+using MassTransit;
 using SchedulerService.Application.Interfaces;
 using SchedulerService.Domain.Entities;
-using SchedulerService.Messages;
 
 namespace SchedulerService.Application.Services
 {
@@ -21,29 +21,51 @@ namespace SchedulerService.Application.Services
             _logger = logger;
         }
 
-        public async Task SchedulePaymentTimeoutAsync(Guid reservationId, string customerEmail)
+        public async Task SchedulePaymentTimeoutAsync(Guid reservationId, string customerName, string customerEmail)
         {
-            var scheduledReservation = new ScheduledReservation
+            try
             {
-                Id = Guid.NewGuid(),
-                ReservationId = reservationId,
-                CustomerEmail = customerEmail,
-                ScheduledAt = DateTime.UtcNow,
-                TimeoutAt = DateTime.UtcNow.AddSeconds(30) // simulação de 30 segundos
-            };
+                var amount = new Random().Next(100, 500); // simulação de valor
 
-            await _schedulerRepository.AddAsync(scheduledReservation);
+                var scheduledReservation = new ScheduledReservation
+                {
+                    Id = Guid.NewGuid(),
+                    ReservationId = reservationId,
+                    CustomerName = customerName,
+                    CustomerEmail = customerEmail,
+                    Amount = amount,
+                    CreatedAt = DateTime.UtcNow,
+                    TimeoutScheduledFor = DateTime.UtcNow.AddSeconds(30),
+                    Status = "Scheduled"
+                };
 
-            _logger.LogInformation("🗓️ Agendamento registrado para ReservationId: {ReservationId}", reservationId);
+                await _schedulerRepository.AddAsync(scheduledReservation);
 
-            // Simula espera até o timeout
-            await Task.Delay(TimeSpan.FromSeconds(30));
+                _logger.LogInformation("Agendamento registrado para ReservationId: {ReservationId}", reservationId);
 
-            var amount = new Random().Next(100, 500); // simulação
+                // Simula espera até o timeout
+                await Task.Delay(TimeSpan.FromSeconds(30));
 
-            await _publishEndpoint.Publish(new PaymentTimeout(reservationId, customerEmail, amount));
+                // Atualiza status e data de execução
+                scheduledReservation.Status = "Executed";
+                scheduledReservation.ExecutedAt = DateTime.UtcNow;
+                await _schedulerRepository.UpdateAsync(scheduledReservation);
 
-            _logger.LogInformation("⏰ PaymentTimeout publicado para ReservationId: {ReservationId}", reservationId);
+                await _publishEndpoint.Publish<IPaymentTimeout>(new PaymentTimeout
+                {
+                    ReservationId = reservationId,
+                    CustomerEmail = customerEmail,
+                    Amount = amount
+                });
+
+                _logger.LogInformation("PaymentTimeout publicado para ReservationId: {ReservationId}", reservationId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao agendar PaymentTimeout para ReservationId: {ReservationId}", reservationId);
+                throw;
+            }
         }
+
     }
 }

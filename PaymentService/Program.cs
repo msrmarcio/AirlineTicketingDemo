@@ -37,7 +37,11 @@ builder.Services.AddMassTransit(x =>
             h.Password(rabbitMqOptions.Password);
         });
 
-        cfg.ConfigureEndpoints(context); // cria automaticamente os endpoints para os consumers
+        cfg.ReceiveEndpoint("payment-timeout-payment-queue", e =>
+        {
+            e.ConfigureConsumer<PaymentTimeoutConsumer>(context);
+            e.SetQueueArgument("durable", true);
+        });
     });
 });
 

@@ -5,14 +5,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using ReservationService.Infrastructure.Persistence;
+using SchedulerService.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace ReservationService.Migrations
+namespace SchedulerService.Migrations
 {
-    [DbContext(typeof(ReservationDbContext))]
-    [Migration("20251012011351_InitialCreate")]
+    [DbContext(typeof(SchedulerDbContext))]
+    [Migration("20251015002842_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -25,11 +25,14 @@ namespace ReservationService.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ReservationService.Domain.Entities.Reservation", b =>
+            modelBuilder.Entity("SchedulerService.Domain.Entities.ScheduledReservation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal?>("Amount")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -44,14 +47,23 @@ namespace ReservationService.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<DateTime?>("ExecutedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ReservationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(30)
                         .HasColumnType("nvarchar(30)");
 
+                    b.Property<DateTime>("TimeoutScheduledFor")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Reservations");
+                    b.ToTable("ScheduledReservations");
                 });
 #pragma warning restore 612, 618
         }

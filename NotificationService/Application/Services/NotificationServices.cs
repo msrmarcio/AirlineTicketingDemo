@@ -17,6 +17,7 @@ namespace NotificationService.Application.Services
 
         public async Task SendNotificationAsync(Guid reservationId, string email, string type, string status, string message)
         {
+            // Persiste a notificação no banco
             var notification = new Notification
             {
                 Id = Guid.NewGuid(),
@@ -30,7 +31,13 @@ namespace NotificationService.Application.Services
 
             await _notificationRepository.AddAsync(notification);
 
+
+
             _logger.LogInformation("Notificação [{Type}] enviada para {Email} com status {Status}: {Message}", type, email, status, message);
+
+            // Aqui você pode integrar com um serviço de envio de e-mail
+            // Exemplo:
+            // await _emailSender.SendAsync(email, $"Notificação: {type}", message);
         }
 
         public async Task<List<Notification>> GetNotificationsByReservationIdAsync(Guid reservationId)
