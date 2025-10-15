@@ -1,4 +1,4 @@
-﻿namespace NotificationService.Application.Contracts
+﻿namespace Contracts
 {
     public interface INotificationSent
     {

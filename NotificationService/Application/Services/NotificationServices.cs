@@ -1,6 +1,7 @@
-﻿using NotificationService.Application.Interfaces;
+﻿using Contracts;
+using MassTransit;
+using NotificationService.Application.Interfaces;
 using NotificationService.Domain.Entities;
-using NotificationService.Infrastructure.Persistence;
 
 namespace NotificationService.Application.Services
 {
@@ -8,10 +9,12 @@ namespace NotificationService.Application.Services
     {
         private readonly INotificationRepository _notificationRepository;
         private readonly ILogger<NotificationServices> _logger;
+        private readonly IPublishEndpoint _publishEndpoint;
 
-        public NotificationServices(INotificationRepository notificationRepository, ILogger<NotificationServices> logger)
+        public NotificationServices(INotificationRepository notificationRepository, IPublishEndpoint publishEndpoint, ILogger<NotificationServices> logger)
         {
             _notificationRepository = notificationRepository;
+            _publishEndpoint = publishEndpoint;
             _logger = logger;
         }
 
@@ -31,6 +34,15 @@ namespace NotificationService.Application.Services
 
             await _notificationRepository.AddAsync(notification);
 
+            await _publishEndpoint.Publish<INotificationSent>(new
+            {
+                ReservationId = reservationId,
+                CustomerEmail = email,
+                Type = type,
+                Status = status,
+                Message = message,
+                SentAt = notification.SentAt
+            });
 
 
             _logger.LogInformation("Notificação [{Type}] enviada para {Email} com status {Status}: {Message}", type, email, status, message);
